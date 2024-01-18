@@ -1,5 +1,6 @@
 
 import datetime
+import json
 import os.path
 
 from google.auth.transport.requests import Request
@@ -50,26 +51,32 @@ def auth():
 
 def request(creds):
 
+    calendar_id = None
+    if os.path.exists("config.json"):
+        calendar_id = json.load(open("config.json"))["calendar_id"]
+
     service = build("calendar", "v3", credentials=creds)
 
     # Call the Calendar API
-    now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
-    print("Getting the upcoming 10 events")
+
     events_result = (
         service.events()
             .list(
-            calendarId="primary",
-            timeMin=now,
+            calendarId=calendar_id,
+            timeMin=datetime.datetime(2023, 1, 1).isoformat() + "Z",
+            timeMax=datetime.datetime.utcnow().isoformat() + "Z",
             orderBy="startTime",
-            maxResults=10,
             singleEvents=True,
         ).execute()
     )
+
+    print(events_result)
     events = events_result.get("items", [])
 
     if not events:
         print("No upcoming events found.")
         return
+        
 
     # Prints the start and name of the next 10 events
     for event in events:

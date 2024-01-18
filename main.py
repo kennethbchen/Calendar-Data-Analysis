@@ -59,30 +59,42 @@ def request(creds):
 
     # Call the Calendar API
 
-    events_result = (
-        service.events()
-            .list(
-            calendarId=calendar_id,
-            timeMin=datetime.datetime(2023, 1, 1).isoformat() + "Z",
-            timeMax=datetime.datetime.utcnow().isoformat() + "Z",
-            orderBy="startTime",
-            singleEvents=True,
-        ).execute()
-    )
+    events = []
+    next_page_token = None
+    while True:
+        print(next_page_token)
+        events_result = (
+            service.events()
+                .list(
+                calendarId=calendar_id,
+                timeMin=datetime.datetime(2018, 1, 1).isoformat() + "Z",
+                timeMax=datetime.datetime.utcnow().isoformat() + "Z",
+                maxResults=2500,
+                pageToken=next_page_token,
+                orderBy="startTime",
+                singleEvents=True,
+            ).execute()
+        )
 
-    print(events_result)
-    events = events_result.get("items", [])
+        events.extend(events_result.get("items", []))
 
-    if not events:
-        print("No upcoming events found.")
-        return
-        
+        if "nextPageToken" in events_result:
+            next_page_token = events_result["nextPageToken"]  # Still more events to get, make another request
+        else:
+            break
 
-    # Prints the start and name of the next 10 events
+
+    print(events[0])
+
+    print("===========")
+
+    print(events[-1])
+
+    print(len(events))
+    return
     for event in events:
         start = event["start"].get("dateTime", event["start"].get("date"))
         print(start, event["summary"])
-
 
 if __name__ == "__main__":
     main()

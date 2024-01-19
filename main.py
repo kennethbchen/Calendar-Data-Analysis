@@ -20,16 +20,26 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 # Uses https://developers.google.com/calendar/api/quickstart/python as a base
 
 def main():
-    """Shows basic usage of the Google Calendar API.
-    Prints the start and name of the next 10 events on the user's calendar.
-    """
-    creds = auth()
 
-    try:
-        request(creds)
+    data = None
 
-    except HttpError as error:
-        print(f"An error occurred: {error}")
+    if not os.path.exists("data.csv"):
+
+        print("Fetching Data...")
+
+        creds = auth()
+
+        try:
+            data = fetch(creds)
+            data.to_csv("data.csv", index=False)
+
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+
+    print("Loading Data")
+    data = pd.read_csv("data.csv")
+
+    print(data)
 
 def auth():
     # The file token.json stores the user's access and refresh tokens, and is
@@ -54,7 +64,7 @@ def auth():
 
     return creds
 
-def request(creds):
+def fetch(creds):
 
     calendar_id = None
     if os.path.exists("config.json"):
@@ -67,14 +77,14 @@ def request(creds):
     events = []
     next_page_token = None
     while True:
-        print(next_page_token)
+        print("Fetching...")
         events_result = (
             service.events()
                 .list(
                 calendarId=calendar_id,
                 timeMin=datetime.datetime(2018, 1, 1).isoformat() + "Z",
                 timeMax=datetime.datetime.utcnow().isoformat() + "Z",
-                maxResults=10,
+                maxResults=2500,
                 pageToken=next_page_token,
                 orderBy="startTime",
                 singleEvents=True,
@@ -84,21 +94,9 @@ def request(creds):
         events.extend(events_result.get("items", []))
 
         if "nextPageToken" in events_result:
-            break
             next_page_token = events_result["nextPageToken"]  # Still more events to get, make another request
         else:
             break
-
-    # data = pd.DataFrame(columns=["Name", "Start", "End", "Duration"])
-
-    print(events[0])
-
-    print("===========")
-
-    print(events[-1])
-
-    print(len(events))
-
 
     data = pd.DataFrame.from_records(events, columns=["summary", "start", "end"])
 
@@ -111,16 +109,13 @@ def request(creds):
     data = pd.concat([data, pd.json_normalize(data["end"]).rename(columns={"dateTime": "endTime"})], axis=1)
     data.drop("end", axis=1, inplace=True)
 
-    print(rfc_parse(data.iloc[0]["endTime"]) - rfc_parse(data.iloc[0]["startTime"]))
-
     data["startTime"] = data["startTime"].apply(rfc_parse)
     data["endTime"] = data["endTime"].apply(rfc_parse)
 
+    # Time between start and end
     data["delta"] = data["endTime"] - data["startTime"]
 
-    print(data)
-
-    return
+    return data
 
 if __name__ == "__main__":
     main()

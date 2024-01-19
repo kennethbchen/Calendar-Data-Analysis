@@ -19,6 +19,7 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 # Uses https://developers.google.com/calendar/api/quickstart/python as a base
 
+
 def main():
 
     data = None
@@ -40,6 +41,8 @@ def main():
     data = pd.read_csv("data.csv")
 
     print(data)
+
+    #print(data[["summary", "delta"]].groupby(by="summary").sum())
 
 def auth():
     # The file token.json stores the user's access and refresh tokens, and is
@@ -113,7 +116,7 @@ def fetch(creds):
     data["endTime"] = data["endTime"].apply(rfc_parse)
 
     # Time between start and end
-    data["delta"] = data["endTime"] - data["startTime"]
+    data["delta_seconds"] = (data["endTime"] - data["startTime"]).apply(datetime.timedelta.total_seconds)
 
     return data
 

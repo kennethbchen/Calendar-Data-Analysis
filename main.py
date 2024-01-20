@@ -14,6 +14,8 @@ from googleapiclient.errors import HttpError
 
 from pyrfc3339 import parse as rfc_parse
 
+from thefuzz import fuzz
+
 pd.options.display.width = 0
 
 # If modifying these scopes, delete the file token.json.
@@ -27,7 +29,7 @@ def get_category(categories, index):
     for i, (name, aliases) in enumerate(categories.items()):
 
         for alias in aliases:
-            if index == alias:
+            if fuzz.ratio(index, alias) > 90:
                 # Match
                 return name
 
@@ -63,7 +65,8 @@ def main():
         categories = json.load(open("config.json"))["categories"]
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        data = data[["summary", "delta_seconds"]].set_index("summary").groupby(partial(get_category, categories)).sum().div(60 * 60).rename(columns={"delta_seconds": "hours"})
+        data = data[["summary", "delta_seconds"]].set_index("summary").groupby(partial(get_category, categories)).sum()\
+            .div(60 * 60).rename(columns={"delta_seconds": "hours"}).sort_values(by="hours", axis=0, ascending=False)
         print(data)
 
 

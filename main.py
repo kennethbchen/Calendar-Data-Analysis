@@ -40,9 +40,9 @@ def main():
     print("Loading Data")
     data = pd.read_csv("data.csv")
 
-    print(data)
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(data[["summary", "delta_seconds"]].groupby(["summary"]).sum().div(60 * 60))
 
-    #print(data[["summary", "delta"]].groupby(by="summary").sum())
 
 def auth():
     # The file token.json stores the user's access and refresh tokens, and is

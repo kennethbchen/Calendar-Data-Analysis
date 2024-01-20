@@ -4,6 +4,8 @@ import json
 import os.path
 import pandas as pd
 
+from functools import partial
+
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -19,6 +21,19 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 # Uses https://developers.google.com/calendar/api/quickstart/python as a base
 
+def get_category(categories, index):
+
+    # Compare index to list of aliases
+    for i, (name, aliases) in enumerate(categories.items()):
+
+        for alias in aliases:
+            if index == alias:
+                # Match
+                return name
+
+    # No match, add as a new category
+    categories[index] = [index]
+    return index
 
 def main():
 
@@ -40,8 +55,18 @@ def main():
     print("Loading Data")
     data = pd.read_csv("data.csv")
 
+    # Maps a canonical category name to a list of valid aliases of that name
+    categories = {}
+
+    if os.path.exists("config.csv"):
+        print("Loaded categories")
+        categories = json.load(open("config.json"))["categories"]
+
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        print(data[["summary", "delta_seconds"]].groupby(["summary"]).sum().div(60 * 60))
+        data = data[["summary", "delta_seconds"]].set_index("summary").groupby(partial(get_category, categories)).sum().div(60 * 60).rename(columns={"delta_seconds": "hours"})
+        print(data)
+
+
 
 
 def auth():

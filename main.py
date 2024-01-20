@@ -17,6 +17,7 @@ from pyrfc3339 import parse as rfc_parse
 from thefuzz import fuzz
 
 pd.options.display.width = 0
+pd.options.display.float_format = '{:,.2f}'.format
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
@@ -29,7 +30,7 @@ def get_category(categories, index):
     for i, (name, aliases) in enumerate(categories.items()):
 
         for alias in aliases:
-            if fuzz.ratio(index, alias) > 90:
+            if fuzz.ratio(index, alias) > 80:
                 # Match
                 return name
 
@@ -60,7 +61,7 @@ def main():
     # Maps a canonical category name to a list of valid aliases of that name
     categories = {}
 
-    if os.path.exists("config.csv"):
+    if os.path.exists("config.json"):
         print("Loaded categories")
         categories = json.load(open("config.json"))["categories"]
 

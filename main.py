@@ -7,6 +7,7 @@ import pandas as pd
 
 from functools import partial
 
+import pytz.reference
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -61,10 +62,15 @@ def main():
 
     print("Loading Data")
     data = pd.read_csv("data.csv")
-
+    
+    # Parse time strings into datetime objects
     data["startTime"] = pd.to_datetime(data["startTime"], utc=True)
-    data["endTime"] = pd.to_datetime(data["endTime"], utc=True)
+    data["startTime"] = data["startTime"].dt.tz_convert("EST")
 
+    data["endTime"] = pd.to_datetime(data["endTime"], utc=True)
+    data["endTime"] = data["endTime"].dt.tz_convert("EST")
+
+    # Convert summary to canonical name
     # Maps a canonical category name to a list of valid aliases of that name
     categories = {}
 
@@ -75,21 +81,24 @@ def main():
     # make summary column match their canonical category
     data["summary"] = data["summary"].apply(partial(get_category, categories))
 
-    # convert each start and end time to a periodIndex
+    # convert each start and end time to a periodIndex (A list of time periods)
     data["periods"] = data[["startTime", "endTime"]].apply(get_periods, axis=1)
 
     # Get the hours of day that each event takes place in
     data["hours"] = [per.hour for per in data["periods"]]
 
-    print(data)
+    # For each hour of the day, get a count of every event for that hour
+    counts = pd.DataFrame(0, index=range(0, 24 + 1), columns=list(categories.keys()))
 
-    exit()
+    for category in categories.keys():
+        for hour in range(0, 24 + 1):
 
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        data = data[["summary", "delta_seconds"]].set_index("summary").groupby(partial(get_category, categories)).sum()\
-            .div(60 * 60).rename(columns={"delta_seconds": "hours"}).sort_values(by="hours", axis=0, ascending=False)
-        print(data)
+            with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+                freq = len(data[["summary", "hours"]].loc[data["summary"] == category].loc[data["hours"].apply(lambda x: hour in x), ["summary"]])
+                counts.at[hour, category] = freq
 
+
+    print(counts)
 
 
 

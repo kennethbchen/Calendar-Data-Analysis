@@ -2,6 +2,7 @@
 import datetime
 import json
 import os.path
+import numpy as np
 import pandas as pd
 
 from functools import partial
@@ -38,6 +39,9 @@ def get_category(categories, index):
     categories[index] = [index]
     return index
 
+def get_periods(df):
+    return pd.period_range(df["startTime"], df["endTime"], freq="h")
+
 def main():
 
     data = None
@@ -58,12 +62,28 @@ def main():
     print("Loading Data")
     data = pd.read_csv("data.csv")
 
+    data["startTime"] = pd.to_datetime(data["startTime"], utc=True)
+    data["endTime"] = pd.to_datetime(data["endTime"], utc=True)
+
     # Maps a canonical category name to a list of valid aliases of that name
     categories = {}
 
     if os.path.exists("config.json"):
         print("Loaded categories")
         categories = json.load(open("config.json"))["categories"]
+
+    # make summary column match their canonical category
+    data["summary"] = data["summary"].apply(partial(get_category, categories))
+
+    # convert each start and end time to a periodIndex
+    data["periods"] = data[["startTime", "endTime"]].apply(get_periods, axis=1)
+
+    # Get the hours of day that each event takes place in
+    data["hours"] = [per.hour for per in data["periods"]]
+
+    print(data)
+
+    exit()
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         data = data[["summary", "delta_seconds"]].set_index("summary").groupby(partial(get_category, categories)).sum()\
@@ -129,6 +149,7 @@ def fetch(creds):
             next_page_token = events_result["nextPageToken"]  # Still more events to get, make another request
         else:
             break
+
 
     data = pd.DataFrame.from_records(events, columns=["summary", "start", "end"])
 

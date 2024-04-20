@@ -2,4 +2,6 @@ credentials.json
 token.json
 config.json
 
+__pycache__/*
+
 *.csv

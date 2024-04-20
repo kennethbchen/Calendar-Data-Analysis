@@ -81,6 +81,10 @@ def main():
     # make summary column match their canonical category
     data["summary"] = data["summary"].apply(partial(get_category, categories))
 
+    analysis_1(data, categories)
+
+def analysis_1(data, categories):
+
     # convert each start and end time to a periodIndex (A list of time periods)
     data["periods"] = data[["startTime", "endTime"]].apply(get_periods, axis=1)
 
@@ -92,15 +96,12 @@ def main():
 
     for category in categories.keys():
         for hour in range(0, 24 + 1):
-
             with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-                freq = len(data[["summary", "hours"]].loc[data["summary"] == category].loc[data["hours"].apply(lambda x: hour in x), ["summary"]])
+                freq = len(data[["summary", "hours"]].loc[data["summary"] == category].loc[
+                               data["hours"].apply(lambda x: hour in x), ["summary"]])
                 counts.at[hour, category] = freq
 
-
     print(counts)
-
-
 
 def auth():
     # The file token.json stores the user's access and refresh tokens, and is

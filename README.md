@@ -22,4 +22,5 @@ The timezone is mostly the same across all events, but is different in others wh
 
 ## Analysis
 
-Todo
+### 1: Distribution of (a selection of) Event Categories by Hour of Day
+![A figure showing a distribution of event categories by hour of day](figures/analysis_1.png)

@@ -21,6 +21,7 @@ The naming scheme of summaries is not perfectly consistent and includes mispelli
 The timezone is mostly the same across all events, but is different in others which means certain times need to be adjusted.
 
 ## Analysis
+Each analysis is done on a subset of the categories in the dataset
 
-### 1: Distribution of (a selection of) Event Categories by Hour of Day
+### 1: Distribution of Event Categories by Hour of Day
 ![A figure showing a distribution of event categories by hour of day](figures/analysis_1.png)

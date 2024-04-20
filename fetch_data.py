@@ -19,7 +19,7 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 def get_data(force_fetch_data=False):
 
-    print("Fetching Data...")
+    print("Fetching data...")
 
     if not os.path.exists("data.csv") or force_fetch_data:
 

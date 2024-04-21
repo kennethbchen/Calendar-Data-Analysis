@@ -25,3 +25,6 @@ Each analysis is done on a subset of the categories in the dataset
 
 ### 1: Distribution of Event Categories by Hour of Day
 ![A figure showing a distribution of event categories by hour of day](figures/analysis_1.png)
+
+### 2: Cumulative Mean of Duration of Events in the 'School' Category in 2023
+![A figure showing the Cumulative Mean of Duration of Events in the 'School' Category in 2023](figures/analysis_2.png)

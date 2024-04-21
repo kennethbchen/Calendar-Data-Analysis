@@ -1,10 +1,11 @@
-
+import matplotlib.dates
 import matplotlib.pyplot as plt
 import datetime
 import json
 import os.path
 import numpy as np
 import pandas as pd
+import janitor
 
 from functools import partial
 
@@ -61,6 +62,8 @@ def main():
     #analysis_1(data, categories)
 
     #analysis_1a(data, categories)
+
+    analysis_2(data, categories)
 
 
 def analysis_1(data, categories):
@@ -159,6 +162,44 @@ def analysis_1a(data, categories):
 
     plt.show()
     #plt.savefig("figures/analysis_1a.png")
+
+def analysis_2(data, categories):
+
+    print("Analysis 2:")
+
+    chosen_categories = ["Sleep", "School", "Art", "Programming", "Game Dev", "3D Modeling"]
+
+
+    # Compute Running Average
+    data = data.loc[(data["summary"] == "School") & (data["startTime"].dt.year == 2023), ["startTime", "delta_seconds"]].copy()
+
+    data["date"] = data.loc[:, "startTime"].dt.date
+
+    # Combine events that take place on the same day into one row
+    data = data.loc[:, ["date", "delta_seconds"]].groupby("date").sum()
+
+    # Fill in missing days as 0 delta_seconds
+    data = data.asfreq("D", fill_value=0)
+
+    data["delta_hours"] = data["delta_seconds"] / (60 * 60)
+
+    data["cumulative_delta_hours"] = data["delta_hours"].rolling(window=14, min_periods=1).mean()
+
+    with pd.option_context("display.max_rows", None):
+        print(data)
+
+    fig, ax = plt.subplots()
+    fig.suptitle("Cumulative Mean of Duration of Events in the 'School' Category in 2023")
+
+    ax.xaxis.set_major_locator(matplotlib.dates.MonthLocator())
+    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b'))
+
+    ax.yaxis.grid()
+    ax.set_ylabel("Event Duration (Hours)")
+
+    ax.plot(data.index, data["cumulative_delta_hours"])
+
+    plt.savefig("figures/analysis_2.png")
 
 
 if __name__ == "__main__":

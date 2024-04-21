@@ -58,7 +58,10 @@ def main():
 
     # Analysis:
 
-    analysis_1(data, categories)
+    #analysis_1(data, categories)
+
+    #analysis_1a(data, categories)
+
 
 def analysis_1(data, categories):
 
@@ -110,6 +113,53 @@ def analysis_1(data, categories):
         ax[i].imshow(counts.loc[label].values.reshape(1, -1))
 
     plt.savefig("figures/analysis_1.png")
+
+def analysis_1a(data, categories):
+
+    print("Analysis 1a:")
+
+    day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+    data = data[data["startTime"].dt.year == 2023]
+    print(data)
+    counts = pd.DataFrame(0, index=day_names, columns=list(categories.keys()))
+
+    for category in categories.keys():
+        for i, day in enumerate(day_names):
+            pass
+            # Get only the events that match this category and day of week. The length of the query is the frequency
+            freq = len(data[["summary"]].loc[data["summary"] == category].loc[data["startTime"].dt.dayofweek == i])
+            counts.at[day, category] = freq
+
+    print(counts)
+
+    # Choose some categories to display
+    counts = counts[["Sleep", "School", "Art", "Programming", "Game Dev", "3D Modeling"]].transpose()
+
+    # Plot
+    fig, ax = plt.subplots(len(counts.index), figsize=(8.5, 4))
+    fig.subplots_adjust(hspace=0.2)
+
+    fig.suptitle("Distribution of Event Categories by Day of Week")
+    for i, label in enumerate(counts.index):
+
+        ax[i].tick_params(labelleft=False, left=False)
+
+        # Only label the bottommost subplot
+        if i == len(counts.index) - 1:
+            ax[i].set_xticks(range(len(day_names)), labels=day_names)
+            ax[i].set_xlabel("Day of Week")
+        else:
+            ax[i].tick_params(labelbottom=False, bottom=False)
+
+        ax[i].set_ylabel(label, loc="top", rotation=0)
+        ax[i].yaxis.set_label_coords(x=-0.01, y=0.2)
+
+        ax[i].bar(day_names, counts.loc[label])
+
+    plt.show()
+    #plt.savefig("figures/analysis_1a.png")
+
 
 if __name__ == "__main__":
     main()

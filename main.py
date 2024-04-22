@@ -167,38 +167,53 @@ def analysis_2(data, categories):
 
     print("Analysis 2:")
 
-    chosen_categories = ["Sleep", "School", "Art", "Programming", "Game Dev", "3D Modeling"]
+    chosen_categories = ["School", "Game Dev", "Art", "Programming"]
+
+    fig, ax = plt.subplots(figsize=(12, 4))
+
+    year = 2023
+
+    date_range = pd.date_range(datetime.datetime(year, 1, 1), datetime.datetime(year, 12, 31))
+
+    for i, category in enumerate(chosen_categories):
+
+        # Compute Running Average
+        category_data = data.loc[(data["summary"] == category) & (data["startTime"].dt.year == year), ["startTime", "delta_seconds"]].copy()
+
+        category_data["date"] = category_data.loc[:, "startTime"].dt.date
+
+        # Combine events that take place on the same day into one row
+        category_data = category_data.loc[:, ["date", "delta_seconds"]].groupby("date").sum()
+
+        # Fill in missing days as 0 delta_seconds
+        #category_data = category_data.asfreq("D", fill_value=0)
+        category_data = category_data.reindex(date_range, fill_value=0)
+
+        category_data["delta_hours"] = category_data["delta_seconds"] / (60 * 60)
+
+        category_data["cumulative_delta_hours"] = category_data["delta_hours"].rolling(window=14, min_periods=1).mean()
+
+        with pd.option_context("display.max_rows", None):
+            print(category,":")
+            print(category_data)
+
+        fig.suptitle(f"Rolling Mean of Duration of Types of Calendar Events in {year}")
+
+        ax.xaxis.set_major_locator(matplotlib.dates.MonthLocator())
+        ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b'))
 
 
-    # Compute Running Average
-    data = data.loc[(data["summary"] == "School") & (data["startTime"].dt.year == 2023), ["startTime", "delta_seconds"]].copy()
 
-    data["date"] = data.loc[:, "startTime"].dt.date
+        ax.plot(category_data.index, category_data["cumulative_delta_hours"])
 
-    # Combine events that take place on the same day into one row
-    data = data.loc[:, ["date", "delta_seconds"]].groupby("date").sum()
-
-    # Fill in missing days as 0 delta_seconds
-    data = data.asfreq("D", fill_value=0)
-
-    data["delta_hours"] = data["delta_seconds"] / (60 * 60)
-
-    data["cumulative_delta_hours"] = data["delta_hours"].rolling(window=14, min_periods=1).mean()
-
-    with pd.option_context("display.max_rows", None):
-        print(data)
-
-    fig, ax = plt.subplots()
-    fig.suptitle("Cumulative Mean of Duration of Events in the 'School' Category in 2023")
-
-    ax.xaxis.set_major_locator(matplotlib.dates.MonthLocator())
-    ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b'))
+    plt.xlim(xmin=date_range[0], xmax=[date_range[-1]])
+    plt.ylim(ymin=0.0)
 
     ax.yaxis.grid()
     ax.set_ylabel("Event Duration (Hours)")
+    ax.legend(chosen_categories)
 
-    ax.plot(data.index, data["cumulative_delta_hours"])
-
+    #plt.show()
     plt.savefig("figures/analysis_2.png")
 
 

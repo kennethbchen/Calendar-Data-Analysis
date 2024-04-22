@@ -8,7 +8,7 @@ The calendar is used for planning the day via loose time blocking.
 
 The dataset is omitted for privacy, but this project will extract Google Calendar information given that you have a Google Cloud project with access to the Google Calendar API.
 
-The dataset contains Google Calendar events created from 11/03/2018 onward (Approximately 13,800 events).
+The dataset contains Google Calendar events created from 11/03/2018 onward (Approximately 14,000 events).
 
 The name of each event (called the "summary" of the event) generally corresponds to the name of a category of activity (e.g. "School" refers to doing school-related work).
 
@@ -28,3 +28,6 @@ Each analysis is done on a subset of the categories in the dataset
 
 ### 2
 ![A figure showing the Cumulative Mean of Duration of Events in the 'School' Category in 2023](figures/analysis_2.png)
+
+### 3
+![A figure showing the Distribution of Calendar Event Duration by Category](figures/analysis_3.png)

@@ -222,17 +222,22 @@ def analysis_3(data):
 
     print("Analysis 3:")
 
-    chosen_categories = ["School", "Game Dev", "Art", "Programming", "3D Modeling"]
+    chosen_categories = ["School", "Game Dev", "Art", "Programming"]
 
     data["delta_hours"] = data.loc[:, "delta_seconds"] / (60 * 60)
-    #print(data)
-    boxplot = data.loc[(data["summary"].isin(chosen_categories))].boxplot(by="summary", column="delta_hours")
 
-    boxplot.set_title("Distribution of Event Duration by Category")
-    boxplot.set_ylabel("Duration (Hours)")
-    boxplot.set_xlabel("Event Category")
-    print(boxplot)
-    plt.show()
+    axes = data.loc[(data["summary"].isin(chosen_categories))].boxplot(by="summary", column="delta_hours")
+    plt.suptitle("Distribution of Calendar Event Duration by Category")
+    axes.set_title("")
+
+
+    axes.set_xlabel("Event Category")
+    axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(base=1.0))
+    axes.set_ylim(bottom=-0.15, top=5.15)
+    axes.set_ylabel("Duration (Hours)")
+
+    #plt.show()
+    plt.savefig("figures/analysis_3.png")
 
 if __name__ == "__main__":
     main()

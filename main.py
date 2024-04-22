@@ -63,7 +63,9 @@ def main():
 
     #analysis_1a(data, categories)
 
-    analysis_2(data, categories)
+    #analysis_2(data, categories)
+
+    analysis_3(data)
 
 
 def analysis_1(data, categories):
@@ -216,6 +218,21 @@ def analysis_2(data, categories):
     #plt.show()
     plt.savefig("figures/analysis_2.png")
 
+def analysis_3(data):
+
+    print("Analysis 3:")
+
+    chosen_categories = ["School", "Game Dev", "Art", "Programming", "3D Modeling"]
+
+    data["delta_hours"] = data.loc[:, "delta_seconds"] / (60 * 60)
+    #print(data)
+    boxplot = data.loc[(data["summary"].isin(chosen_categories))].boxplot(by="summary", column="delta_hours")
+
+    boxplot.set_title("Distribution of Event Duration by Category")
+    boxplot.set_ylabel("Duration (Hours)")
+    boxplot.set_xlabel("Event Category")
+    print(boxplot)
+    plt.show()
 
 if __name__ == "__main__":
     main()

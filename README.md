@@ -8,15 +8,23 @@ The calendar is used for planning the day via loose time blocking.
 
 The dataset is omitted for privacy, but this project will extract Google Calendar information given that you have a Google Cloud project with access to the Google Calendar API.
 
-The dataset contains Google Calendar events created from 11/03/2018 onward (Approximately 14,000 events).
+The dataset is a csv that contains Google Calendar events created from 11/03/2018 onward (Approximately 14,000 events).
 
-The name of each event (called the "summary" of the event) generally corresponds to the name of a category of activity (e.g. "School" refers to doing school-related work).
+Each row is a unique event in the calendar and has the following columns:
 
-The dataset also has the date of the event, the start / end time, timezone, and duration of event.
+summary - The name of each event. It generally corresponds to the name of a category of activity (e.g. "School" refers to doing school-related work).
+
+startTime - Start time of the event
+
+endTime - End time of the event
+
+timeZone - Timezone of the event
+
+delta_seconds - The duration of the event (time between start and end) in seconds.
 
 ### Notes
 
-The naming scheme of summaries is not perfectly consistent and includes mispellings that will need to be corrected.
+The naming scheme of summaries is not perfectly consistent and includes misspellings that will need to be corrected.
 
 The timezone is mostly the same across all events, but is different in others which means certain times need to be adjusted.
 

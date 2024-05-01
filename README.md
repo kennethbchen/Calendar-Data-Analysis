@@ -24,6 +24,8 @@ delta_seconds - The duration of the event (time between start and end) in second
 
 ### Notes
 
+Events may not be mutually exclusive (event time periods may overlap)
+
 The naming scheme of summaries is not perfectly consistent and includes misspellings that will need to be corrected.
 
 The timezone is mostly the same across all events, but is different in others which means certain times need to be adjusted.

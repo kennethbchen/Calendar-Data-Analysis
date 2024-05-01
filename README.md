@@ -1,4 +1,4 @@
-# CalendarStats
+# Calendar Data Analysis
 
 This is some data analysis done on one of my personal Google Calendar calendars.
 

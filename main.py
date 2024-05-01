@@ -65,7 +65,9 @@ def main():
 
     #analysis_2(data, categories)
 
-    analysis_3(data)
+    #analysis_3(data.copy())
+
+    analysis_4(data.copy())
 
 
 def analysis_1(data, categories):
@@ -238,6 +240,34 @@ def analysis_3(data):
 
     #plt.show()
     plt.savefig("figures/analysis_3.png")
+
+def analysis_4(data):
+    print("Analysis 4:")
+
+    chosen_categories = ["School", "Game Dev", "Art", "Programming"]
+
+    data = data.loc[(data["startTime"].dt.year == 2023), ["summary", "delta_seconds"]]
+
+    data["delta_hours"] = data.loc[:, "delta_seconds"] / (60 * 60)
+
+    vals = []
+    for category in chosen_categories:
+        vals.append(data[(data["summary"] == category)]["delta_hours"].sum())
+        #print(category, ":", data[(data["summary"] == category)]["delta_hours"].sum())
+
+    fig, ax = plt.subplots()
+    fig.suptitle("Sum of Event Durations in 2023 (Grouped by Category)")
+
+    ax.bar(chosen_categories, vals, color=['C0', 'C1', 'C2', 'C3', 'C4'])
+
+
+    ax.set_xlabel("Event Category")
+    ax.set_ylabel("Duration (Hours)")
+
+    #plt.show()
+    plt.savefig("figures/analysis_4.png")
+
+
 
 if __name__ == "__main__":
     main()
